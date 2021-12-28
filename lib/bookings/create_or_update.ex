@@ -3,6 +3,19 @@ defmodule Flightex.Bookings.CreateOrUpdate do
   alias Flightex.Bookings.Booking
 
   def call(%{
+        id: id,
+        complete_date: complete_date,
+        local_origin: local_origin,
+        local_destination: local_destination,
+        user_id: user_id
+      }) do
+    case Booking.build(complete_date, local_origin, local_destination, user_id) do
+      {:ok, booking} -> save_booking({:ok, %{booking | id: id}})
+      error -> error
+    end
+  end
+
+  def call(%{
         complete_date: complete_date,
         local_origin: local_origin,
         local_destination: local_destination,
@@ -12,8 +25,6 @@ defmodule Flightex.Bookings.CreateOrUpdate do
     |> Booking.build(local_origin, local_destination, user_id)
     |> save_booking()
   end
-
-  def call(booking), do: BookingAgent.save(booking)
 
   defp save_booking({:ok, %Booking{} = booking}) do
     BookingAgent.save(booking)
